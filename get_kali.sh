@@ -19,6 +19,12 @@ sha1_url=$(curl -sI "${base_url}SHA1SUMS" | grep -i '^location:' | awk '{print $
 sha1_file="SHA1SUMS"
 vm_name="${iso_file%.iso}"
 
+# Check if VM exists
+if VBoxManage list vms | awk -F\" '{print $2}' | grep -xq "${vm_name}"; then
+  echo -e "${RED}[!]${NC} VM '${vm_name}' already exists. Abort."
+  exit 1
+fi
+
 echo -e "${BLUE}[*]${NC} Downloading ISO file: ${iso_file}"
 curl -L -o "${iso_file}" "${iso_url}"
 
@@ -34,12 +40,6 @@ if [[ "$expected_sha" != "$actual_sha" ]]; then
   exit 1
 fi
 echo -e "${GREEN}[+]${NC} SHA1SUM is valid."
-
-# Check if VM exists
-if VBoxManage list vms | awk -F\" '{print $2}' | grep -xq "${vm_name}"; then
-  echo -e "${RED}[!]${NC} VM '${vm_name}' already exists. Abort."
-  exit 1
-fi
 
 # Select mode
 echo -e "${YELLOW}[?]${NC} Select mode: (a)utamatic or (c)ustom? [Ac]: "
