@@ -17,7 +17,11 @@ iso_file=$(curl -s "${base_url}" | grep -oE 'kali-linux-[0-9.]+[a-z]*-installer-
 iso_url="${base_url}${iso_file}"
 sha1_url=$(curl -sI "${base_url}SHA1SUMS" | grep -i '^location:' | awk '{print $2}' | tr -d '\r')
 sha1_file="SHA1SUMS"
-vm_name="${iso_file%.iso}"
+read -p "VM name: " vm_name
+
+if [ -z "$vm_name" ]; then
+  vm_name="${iso_file%.iso}"
+fi
 
 # Check if VM exists
 if VBoxManage list vms | awk -F\" '{print $2}' | grep -xq "${vm_name}"; then
